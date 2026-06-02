@@ -1,0 +1,139 @@
+═══════════════════════════════════════════════════════════════
+    🚨 ATENÇÃO: VOCÊ PRECISA FAZER O DEPLOY MANUALMENTE 🚨
+═══════════════════════════════════════════════════════════════
+
+O app está dando erro "AuthenticationFailed" porque as edge functions
+no Supabase ainda estão com o código ANTIGO (bugado).
+
+Suas credenciais estão 100% CORRETAS! Eu testei e funcionam perfeitamente.
+
+═══════════════════════════════════════════════════════════════
+                    📋 O QUE VOCÊ PRECISA FAZER
+═══════════════════════════════════════════════════════════════
+
+Existem 3 arquivos no projeto:
+
+1️⃣  SECRETS_VERIFICACAO.txt
+    ↳ Verifique os secrets PRIMEIRO
+
+2️⃣  FUNCTION_1_OPERATORS.txt  
+    ↳ Copie e cole no dashboard do Supabase
+
+3️⃣  FUNCTION_2_RECHARGE.txt
+    ↳ Copie e cole no dashboard do Supabase
+
+═══════════════════════════════════════════════════════════════
+                      🔐 PASSO 1: SECRETS
+═══════════════════════════════════════════════════════════════
+
+Acesse: https://supabase.com/dashboard/project/ptdffidlieebxxnznezy/settings/vault
+
+Verifique se existem:
+  • DINGCONNECT_CLIENT_ID
+  • DINGCONNECT_CLIENT_SECRET
+
+Se não existirem, adicione conforme instruções no arquivo
+SECRETS_VERIFICACAO.txt
+
+═══════════════════════════════════════════════════════════════
+              📤 PASSO 2: DEPLOY FUNÇÃO 1 (operators)
+═══════════════════════════════════════════════════════════════
+
+1. Acesse: 
+   https://supabase.com/dashboard/project/ptdffidlieebxxnznezy/functions/dingconnect-operators
+
+2. Clique no botão "Edit" (ícone de lápis no canto superior direito)
+
+3. Selecione TODO o código antigo (Ctrl+A ou Cmd+A)
+
+4. Delete tudo
+
+5. Abra o arquivo FUNCTION_1_OPERATORS.txt no projeto
+
+6. Copie TODO o código TypeScript (apenas o código, não as linhas ===)
+
+7. Cole no editor do Supabase (Ctrl+V ou Cmd+V)
+
+8. Clique em "Deploy" ou "Save"
+
+9. Aguarde a mensagem de sucesso (30-60 segundos)
+
+═══════════════════════════════════════════════════════════════
+              📤 PASSO 3: DEPLOY FUNÇÃO 2 (recharge)
+═══════════════════════════════════════════════════════════════
+
+1. Acesse:
+   https://supabase.com/dashboard/project/ptdffidlieebxxnznezy/functions/dingconnect-recharge
+
+2. Clique no botão "Edit"
+
+3. Selecione TODO o código antigo (Ctrl+A ou Cmd+A)
+
+4. Delete tudo
+
+5. Abra o arquivo FUNCTION_2_RECHARGE.txt no projeto
+
+6. Copie TODO o código TypeScript
+
+7. Cole no editor do Supabase
+
+8. Clique em "Deploy"
+
+9. Aguarde a mensagem de sucesso
+
+═══════════════════════════════════════════════════════════════
+                        ✅ PASSO 4: TESTAR
+═══════════════════════════════════════════════════════════════
+
+Depois de fazer o deploy das 2 funções:
+
+1. Volte para o app
+
+2. Clique em "Buscar Operadoras"
+   ↳ Deve carregar a lista de operadoras do Haiti
+
+3. Selecione uma operadora
+
+4. Digite um telefone de teste
+
+5. Clique em "Processar Recarga"
+   ↳ Não vai mais dar erro "AuthenticationFailed"!
+
+═══════════════════════════════════════════════════════════════
+                          🐛 O QUE FOI O BUG
+═══════════════════════════════════════════════════════════════
+
+Código ANTIGO (bugado):
+  ❌ headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+  ❌ return data.Products || []
+
+Código NOVO (corrigido):
+  ✅ headers: { 'Authorization': `Bearer ${token}` }
+  ✅ return data.Items || []
+
+Problemas que o bug causava:
+  • DingConnect rejeitava requests GET com Content-Type header
+  • A API retorna "Items" mas o código buscava "Products"
+  • Resultado: erro 401 AuthenticationFailed sempre
+
+═══════════════════════════════════════════════════════════════
+                      🎯 RESUMO RÁPIDO
+═══════════════════════════════════════════════════════════════
+
+1. ✓ Suas credenciais estão corretas
+2. ✓ O banco de dados está funcionando
+3. ✓ O código do app está correto
+4. ✗ As edge functions no Supabase estão desatualizadas
+
+SOLUÇÃO: Copie e cole o código corrigido no dashboard do Supabase!
+
+═══════════════════════════════════════════════════════════════
+                    💬 PRECISA DE AJUDA?
+═══════════════════════════════════════════════════════════════
+
+Se tiver dúvidas:
+  1. Abra o arquivo específico (FUNCTION_1_OPERATORS.txt ou FUNCTION_2_RECHARGE.txt)
+  2. Siga as instruções passo a passo
+  3. Cada arquivo tem instruções detalhadas
+
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recharge Haiti - Complete International Recharge App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Force-clear stale pending_recharge on every load.
+      // If it's older than 3 minutes or has no createdAt, wipe it immediately.
+      try {
+        var raw = localStorage.getItem('pending_recharge');
+        if (raw) {
+          var data = JSON.parse(raw);
+          var age = Date.now() - new Date(data.createdAt).getTime();
+          if (!data.createdAt || age > 3 * 60 * 1000) {
+            localStorage.removeItem('pending_recharge');
+          }
+        }
+      } catch(e) {
+        try { localStorage.removeItem('pending_recharge'); } catch(e2) {}
+      }
+    </script>
+  </body>
+</html>
