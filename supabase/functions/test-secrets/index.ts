@@ -20,59 +20,8 @@ Deno.serve(async (req: Request) => {
     const EXPECTED_DING_KEY = '5YtHTsX69m06rABjVismuC';
     const dingMatches = DING_API_KEY === EXPECTED_DING_KEY;
 
-    // PayPal (verifica ambos nomes possíveis)
-    const PAYPAL_CLIENT_ID = Deno.env.get('PAYPAL_CLIENT_ID');
-    const PAYPAL_SECRET = Deno.env.get('PAYPAL_SECRET') || Deno.env.get('PAYPAL_CLIENT_SECRET');
-    const PAYPAL_MODE = Deno.env.get('PAYPAL_MODE') || 'sandbox';
-
     // MercadoPago
     const MP_TOKEN = Deno.env.get('MERCADOPAGO_ACCESS_TOKEN');
-
-    // Testar autenticação PayPal
-    let paypalAuthTest = null;
-    if (PAYPAL_CLIENT_ID && PAYPAL_SECRET) {
-      try {
-        const PAYPAL_API_URL = PAYPAL_MODE === 'live'
-          ? 'https://api-m.paypal.com'
-          : 'https://api-m.sandbox.paypal.com';
-
-        const auth = btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`);
-        const tokenResponse = await fetch(
-          `${PAYPAL_API_URL}/v1/oauth2/token`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'Authorization': `Basic ${auth}`
-            },
-            body: 'grant_type=client_credentials'
-          }
-        );
-
-        if (tokenResponse.ok) {
-          const tokenData = await tokenResponse.json();
-          paypalAuthTest = {
-            success: true,
-            message: '✅ Autenticação bem-sucedida',
-            apiUrl: PAYPAL_API_URL
-          };
-        } else {
-          const errorData = await tokenResponse.json();
-          paypalAuthTest = {
-            success: false,
-            message: '❌ Falha na autenticação',
-            error: errorData,
-            apiUrl: PAYPAL_API_URL
-          };
-        }
-      } catch (error) {
-        paypalAuthTest = {
-          success: false,
-          message: '❌ Erro ao testar',
-          error: error instanceof Error ? error.message : String(error)
-        };
-      }
-    }
 
     // Test DingConnect ValidateOnly to see Price structure
     let dingPriceTest = null;
@@ -116,18 +65,6 @@ Deno.serve(async (req: Request) => {
         matches: dingMatches,
         preview: DING_API_KEY ? DING_API_KEY.substring(0, 8) + '...' : 'NOT_SET',
         message: dingMatches ? '✅ Configurado' : !DING_API_KEY ? '❌ Não configurado' : '⚠️ Valor incorreto'
-      },
-      paypal: {
-        configured: !!PAYPAL_CLIENT_ID && !!PAYPAL_SECRET,
-        hasClientId: !!PAYPAL_CLIENT_ID,
-        hasSecret: !!PAYPAL_SECRET,
-        mode: PAYPAL_MODE,
-        clientIdPreview: PAYPAL_CLIENT_ID ? PAYPAL_CLIENT_ID.substring(0, 20) + '...' : 'NOT_SET',
-        secretPreview: PAYPAL_SECRET ? PAYPAL_SECRET.substring(0, 20) + '...' : 'NOT_SET',
-        clientIdLength: PAYPAL_CLIENT_ID?.length || 0,
-        secretLength: PAYPAL_SECRET?.length || 0,
-        authTest: paypalAuthTest,
-        message: (!!PAYPAL_CLIENT_ID && !!PAYPAL_SECRET) ? '✅ Configurado' : '❌ Não configurado'
       },
       mercadopago: {
         configured: !!MP_TOKEN,
