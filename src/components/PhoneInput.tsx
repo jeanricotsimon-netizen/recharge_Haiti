@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { detectOperatorFromPhone, formatPhoneNumber, isValidHaitiNumber, isValidDominicanNumber } from '../utils/operatorDetection';
+import { detectOperatorFromPhone, formatPhoneNumber, isValidHaitiNumber, isValidDominicanNumber, isValidBrazilNumber } from '../utils/operatorDetection';
 
 interface PhoneInputProps {
   phoneNumber: string;
@@ -16,7 +16,9 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
 }) => {
   // Usar useEffect com dependências corretas para evitar loop infinito
   useEffect(() => {
-    const minLength = destinationCountry === 'DO' ? 10 : 8;
+    let minLength = 8;
+    if (destinationCountry === 'DO') minLength = 10;
+    if (destinationCountry === 'BR') minLength = 10;
     if (phoneNumber.replace(/\D/g, '').length >= minLength && onOperatorDetected) {
       const detectedOperator = detectOperatorFromPhone(phoneNumber);
       if (detectedOperator) {
@@ -48,6 +50,11 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
       if (cleanValue.length <= 10) {
         onPhoneChange(cleanValue);
       }
+    } else if (destinationCountry === 'BR') {
+      // Brasil: 10 ou 11 dígitos (com nono dígito)
+      if (cleanValue.length <= 11) {
+        onPhoneChange(cleanValue);
+      }
     }
   };
 
@@ -56,6 +63,8 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
       return isValidHaitiNumber(phoneNumber);
     } else if (destinationCountry === 'DO') {
       return isValidDominicanNumber(phoneNumber);
+    } else if (destinationCountry === 'BR') {
+      return isValidBrazilNumber(phoneNumber);
     }
     return false;
   };
@@ -86,6 +95,20 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
           'Altice': '809-123-4567, 829-123-4567',
           'Viva': '809-234-5678, 849-234-5678',
           'Claro': '809-345-6789, 829-345-6789'
+        }
+      };
+    } else if (destinationCountry === 'BR') {
+      return {
+        flag: '🇧🇷',
+        code: '+55',
+        placeholder: 'XX-XXXXX-XXXX',
+        title: 'Número de destino no Brasil',
+        description: 'Digite o DDD + número (10 ou 11 dígitos)',
+        minLength: 10,
+        examples: {
+          'Claro': '11-91234-5678, 21-91234-5678',
+          'Tim': '11-92345-6789, 31-92345-6789',
+          'Vivo': '11-93456-7890, 41-93456-7890'
         }
       };
     }
@@ -148,7 +171,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
 
           {currentLength >= requiredLength && !isValidNumber && (
             <div className="text-sm text-red-700 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
-              Numero invalido. Use um prefixo valido para {destinationCountry === 'HT' ? 'Haiti' : 'Republica Dominicana'}.
+              Numero invalido. Use um prefixo valido para {destinationCountry === 'HT' ? 'Haiti' : destinationCountry === 'DO' ? 'Republica Dominicana' : 'Brasil'}.
             </div>
           )}
         </div>
@@ -167,7 +190,10 @@ const getOperatorName = (operatorId: string): string => {
     'ORDO': 'Altice (Orange) Rep. Dom.',
     'VVDO': 'Viva Rep. Dom.',
     'D8DO': 'Claro Data Rep. Dom.',
-    'CLDO': 'Claro Rep. Dom.'
+    'CLDO': 'Claro Rep. Dom.',
+    'BR_CL_TopUp': 'Claro Brasil',
+    'BR_IM_TopUp': 'Tim Brasil',
+    'BR_VO_TopUp': 'Vivo Brasil'
   };
   return operatorNames[operatorId] || 'Operadora desconhecida';
 };

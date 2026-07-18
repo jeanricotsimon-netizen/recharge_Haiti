@@ -107,8 +107,86 @@ export const DOMINICAN_OPERATORS = [
   }
 ];
 
+export const BRAZIL_OPERATORS = [
+  {
+    id: 'BR_CL_TopUp',
+    name: 'Claro Brazil',
+    logoUrl: 'https://imagerepo.ding.com/logo/CL/BR.png',
+    country: 'BR',
+    providerCode: 'CLBR',
+    fxRate: 1,
+    currencyCode: 'BRL',
+    denominations: [20, 30, 40, 50, 100],
+    prefixes: ['11', '12', '13', '14', '15', '16', '17', '18', '19', '21', '22', '24', '27', '28', '31', '32', '33', '34', '35', '37', '38', '41', '42', '43', '44', '45', '46', '47', '48', '49', '51', '53', '54', '55', '61', '62', '63', '64', '65', '66', '67', '68', '69', '71', '73', '74', '75', '77', '79', '81', '82', '83', '84', '85', '86', '87', '88', '89', '91', '92', '93', '94', '95', '96', '97', '98', '99'],
+    minAmountBRL: 20.90,
+    maxAmountBRL: 104.20,
+    commission: 4,
+    validationRegex: '^(55[0-9]{2})?9?[0-9]{8}$',
+    uatNumber: '5511999999999',
+    products: [
+      { skuCode: 'BR_CL_TopUp_20.00', sendAmount: 20.90, receiveAmount: 20.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_CL_TopUp_30.00', sendAmount: 31.30, receiveAmount: 30.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'CLBRBR56359',       sendAmount: 41.70, receiveAmount: 40.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_CL_TopUp_50.00', sendAmount: 52.10, receiveAmount: 50.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_CL_TopUp_100.00',sendAmount: 104.20,receiveAmount: 100.00,receiveCurrencyIso: 'BRL', productType: 'Recarga' as const }
+    ]
+  },
+  {
+    id: 'BR_IM_TopUp',
+    name: 'Tim Brazil',
+    logoUrl: 'https://imagerepo.ding.com/logo/IM/BR.png',
+    country: 'BR',
+    providerCode: 'IMBR',
+    fxRate: 1,
+    currencyCode: 'BRL',
+    denominations: [20, 30, 40, 50, 100],
+    prefixes: ['11', '12', '13', '14', '15', '16', '17', '18', '19', '21', '22', '24', '27', '28', '31', '32', '33', '34', '35', '37', '38', '41', '42', '43', '44', '45', '46', '47', '48', '49', '51', '53', '54', '55', '61', '62', '63', '64', '65', '66', '67', '68', '69', '71', '73', '74', '75', '77', '79', '81', '82', '83', '84', '85', '86', '87', '88', '89', '91', '92', '93', '94', '95', '96', '97', '98', '99'],
+    minAmountBRL: 20.90,
+    maxAmountBRL: 104.30,
+    commission: 4,
+    validationRegex: '^(55[0-9]{2})?9?[0-9]{8}$',
+    uatNumber: '5511999999999',
+    products: [
+      { skuCode: 'BR_IM_TopUp_20.00', sendAmount: 20.90, receiveAmount: 20.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_IM_TopUp_30.00', sendAmount: 31.30, receiveAmount: 30.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_IM_TopUp_40.00', sendAmount: 41.70, receiveAmount: 40.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_IM_TopUp_50.00', sendAmount: 52.20, receiveAmount: 50.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_IM_TopUp_100.00',sendAmount: 104.30,receiveAmount: 100.00,receiveCurrencyIso: 'BRL', productType: 'Recarga' as const }
+    ]
+  },
+  {
+    id: 'BR_VO_TopUp',
+    name: 'Vivo Brazil',
+    logoUrl: 'https://imagerepo.ding.com/logo/VO/BR.png',
+    country: 'BR',
+    providerCode: 'VOBR',
+    fxRate: 1,
+    currencyCode: 'BRL',
+    denominations: [15, 17, 20, 25, 30, 35, 40, 50, 100, 200, 300],
+    prefixes: ['11', '12', '13', '14', '15', '16', '17', '18', '19', '21', '22', '24', '27', '28', '31', '32', '33', '34', '35', '37', '38', '41', '42', '43', '44', '45', '46', '47', '48', '49', '51', '53', '54', '55', '61', '62', '63', '64', '65', '66', '67', '68', '69', '71', '73', '74', '75', '77', '79', '81', '82', '83', '84', '85', '86', '87', '88', '89', '91', '92', '93', '94', '95', '96', '97', '98', '99'],
+    minAmountBRL: 18.70,
+    maxAmountBRL: 372.50,
+    commission: 4,
+    validationRegex: '^(55[0-9]{2})?9?[0-9]{8}$',
+    uatNumber: '5511999999999',
+    products: [
+      { skuCode: 'BR_VO_TopUp_15.00', sendAmount: 18.70, receiveAmount: 15.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'VOBR98982',         sendAmount: 21.20, receiveAmount: 17.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_VO_TopUp_20.00', sendAmount: 24.90, receiveAmount: 20.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_VO_TopUp_25.00', sendAmount: 31.10, receiveAmount: 25.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'VOBR71581',         sendAmount: 37.30, receiveAmount: 30.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_VO_TopUp_35.00', sendAmount: 43.50, receiveAmount: 35.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_VO_TopUp_40.00', sendAmount: 49.70, receiveAmount: 40.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_VO_TopUp_50.00', sendAmount: 62.10, receiveAmount: 50.00, receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'BR_VO_TopUp_100.00',sendAmount: 124.20,receiveAmount: 100.00,receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'VOBR88371',         sendAmount: 248.40,receiveAmount: 200.00,receiveCurrencyIso: 'BRL', productType: 'Recarga' as const },
+      { skuCode: 'VOBR17740',         sendAmount: 372.50,receiveAmount: 300.00,receiveCurrencyIso: 'BRL', productType: 'Recarga' as const }
+    ]
+  }
+];
+
 // Combine all operators
-export const ALL_OPERATORS = [...HAITI_OPERATORS, ...DOMINICAN_OPERATORS];
+export const ALL_OPERATORS = [...HAITI_OPERATORS, ...DOMINICAN_OPERATORS, ...BRAZIL_OPERATORS];
 export const CURRENCY_SYMBOLS = {
   'BRL': 'R$',
   'CLP': 'CLP$',

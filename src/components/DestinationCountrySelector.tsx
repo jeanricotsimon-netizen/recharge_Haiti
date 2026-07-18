@@ -11,6 +11,13 @@ export const DestinationCountrySelector: React.FC<DestinationCountrySelectorProp
 }) => {
   const destinations = [
     {
+      code: 'BR',
+      name: 'Brasil',
+      flag: '🇧🇷',
+      operators: ['Claro', 'Tim', 'Vivo'],
+      description: 'Recargas para operadoras brasileiras'
+    },
+    {
       code: 'HT',
       name: 'Haiti',
       flag: '🇭🇹',

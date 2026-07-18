@@ -1,5 +1,5 @@
 import React from 'react';
-import { HAITI_OPERATORS, DOMINICAN_OPERATORS, ALL_OPERATORS } from '../constants/countries';
+import { HAITI_OPERATORS, DOMINICAN_OPERATORS, BRAZIL_OPERATORS, ALL_OPERATORS } from '../constants/countries';
 import { getOperatorInfo } from '../utils/operatorDetection';
 
 interface OperatorSelectorProps {
@@ -22,23 +22,30 @@ export const OperatorSelector: React.FC<OperatorSelectorProps> = ({
         return HAITI_OPERATORS;
       case 'DO':
         return DOMINICAN_OPERATORS;
+      case 'BR':
+        return BRAZIL_OPERATORS;
       default:
         return HAITI_OPERATORS;
     }
   };
-  
+
   const operators = getOperatorsForCountry(destinationCountry);
-  
+
   const getOperatorIcon = (operatorId: string) => {
     // Haiti operators
     if (operatorId === 'HT_D7_TopUp' || operatorId === 'DBHT') return '📱'; // Digicel
     if (operatorId === 'HT_NM_TopUp' || operatorId === 'N2HT') return '📞'; // Natcom
-    
+
     // Dominican Republic operators
     if (operatorId === 'ORDO') return '🟠'; // Orange/Altice
     if (operatorId === 'VVDO') return '🟢'; // Viva
     if (operatorId === 'D8DO' || operatorId === 'CLDO') return '🔴'; // Claro
-    
+
+    // Brazil operators
+    if (operatorId === 'BR_CL_TopUp') return '🔴'; // Claro
+    if (operatorId === 'BR_IM_TopUp') return '🔵'; // Tim
+    if (operatorId === 'BR_VO_TopUp') return '🟣'; // Vivo
+
     return '📱'; // Default
   };
 
@@ -55,13 +62,18 @@ export const OperatorSelector: React.FC<OperatorSelectorProps> = ({
     if (operatorId === 'DBHT') return 'Digicel Haiti - Planos Pré-pagos';
     if (operatorId === 'HT_NM_TopUp') return 'Natcom Haiti - Operadora nacional';
     if (operatorId === 'N2HT') return 'Natcom Haiti - Pacotes de dados';
-    
+
     // Dominican Republic operators
     if (operatorId === 'ORDO') return 'Orange/Altice República Dominicana';
     if (operatorId === 'VVDO') return 'Viva República Dominicana';
     if (operatorId === 'D8DO') return 'Claro Data República Dominicana';
     if (operatorId === 'CLDO') return 'Claro República Dominicana';
-    
+
+    // Brazil operators
+    if (operatorId === 'BR_CL_TopUp') return 'Claro Brasil - Recarga pré-paga';
+    if (operatorId === 'BR_IM_TopUp') return 'Tim Brasil - Recarga pré-paga';
+    if (operatorId === 'BR_VO_TopUp') return 'Vivo Brasil - Recarga pré-paga';
+
     return '';
   };
 
@@ -70,11 +82,17 @@ export const OperatorSelector: React.FC<OperatorSelectorProps> = ({
   };
 
   const getCountryName = () => {
-    return destinationCountry === 'HT' ? 'Haiti' : 'República Dominicana';
+    if (destinationCountry === 'HT') return 'Haiti';
+    if (destinationCountry === 'DO') return 'República Dominicana';
+    if (destinationCountry === 'BR') return 'Brasil';
+    return 'Haiti';
   };
 
   const getCountryFlag = () => {
-    return destinationCountry === 'HT' ? '🇭🇹' : '🇩🇴';
+    if (destinationCountry === 'HT') return '🇭🇹';
+    if (destinationCountry === 'DO') return '🇩🇴';
+    if (destinationCountry === 'BR') return '🇧🇷';
+    return '🇭🇹';
   };
 
   return (

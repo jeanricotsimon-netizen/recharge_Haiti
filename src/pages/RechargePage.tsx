@@ -193,7 +193,9 @@ export const RechargePage: React.FC<RechargePageProps> = ({ onBackToHome, recove
       case 1: return true;
       case 2: return destinationCountry !== '';
       case 3:
-        const minLength = destinationCountry === 'DO' ? 10 : 8;
+        let minLength = 8;
+        if (destinationCountry === 'DO') minLength = 10;
+        if (destinationCountry === 'BR') minLength = 10;
         return rechargeData.phoneNumber.replace(/\D/g, '').length >= minLength;
       case 4: return rechargeData.operator !== '';
       case 5: return rechargeData.amount > 0 && rechargeData.paymentMethod !== '';

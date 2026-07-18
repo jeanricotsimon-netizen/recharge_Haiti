@@ -6,6 +6,14 @@ export interface Country {
   paymentMethods: string[];
 }
 
+export interface OperatorProduct {
+  skuCode: string;
+  sendAmount: number;
+  receiveAmount: number;
+  receiveCurrencyIso: string;
+  productType: 'Recarga' | 'Voucher';
+}
+
 export interface Operator {
   id: string;
   name: string;
@@ -19,6 +27,7 @@ export interface Operator {
   maxAmountBRL?: number;
   commission?: number;
   receiveValueDivisor?: number;
+  products?: OperatorProduct[];
 }
 
 export interface RechargeData {
