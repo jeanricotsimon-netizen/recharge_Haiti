@@ -23,12 +23,16 @@ const getOperatorDisplayName = (operatorId: string): string => {
     'N2HT': 'Natcom Haiti Bundles',
     'DO_OR_TopUp': 'Altice (Orange)',
     'DO_VV_TopUp': 'Viva',
-    'DO_CL_TopUp': 'Claro'
+    'DO_CL_TopUp': 'Claro',
+    'BR_CL_TopUp': 'Claro Brasil',
+    'BR_IM_TopUp': 'Tim Brasil',
+    'BR_VO_TopUp': 'Vivo Brasil'
   };
   return operatorNames[operatorId] || operatorId;
 };
 
 const getCountryDialCode = (operatorId: string): string => {
+  if (operatorId.startsWith('BR_')) return '+55';
   if (operatorId.includes('DO')) return '+1';
   return '+509';
 };
@@ -48,8 +52,10 @@ const CopyReceiptButton: React.FC<{
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    const details = `Recarga ${getCountryDialCode(result.operator) === '+1' ? 'Rep. Dominicana' : 'Haiti'}
-Numero: ${getCountryDialCode(result.operator)} ${result.phoneNumber}
+    const dialCode = getCountryDialCode(result.operator);
+    const countryName = dialCode === '+55' ? 'Brasil' : (dialCode === '+1' ? 'Rep. Dominicana' : 'Haiti');
+    const details = `Recarga ${countryName}
+Numero: ${dialCode} ${result.phoneNumber}
 Operadora: ${getOperatorDisplayName(result.operator)}
 Valor: ${symbol} ${Number(result.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}${result.receiveValue ? `\nCredito: ${result.receiveCurrencyIso} ${Number(result.receiveValue).toFixed(2)}` : ''}
 ID: ${result.dingconnectTransactionId || result.id}

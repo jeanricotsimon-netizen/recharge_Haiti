@@ -13,16 +13,23 @@ async function performDingConnectRecharge(
   phoneNumber: string,
   operatorId: string,
   amount: number,
-  currency: string
+  currency: string,
+  skuCode?: string
 ): Promise<{ success: boolean; transactionId?: string; receiveValue?: number; receiveCurrency?: string; error?: string }> {
   // Strip all non-digit characters before building the full number
   const digitsOnly = phoneNumber.replace(/\D/g, '')
   let fullPhone = digitsOnly
   if (operatorId.startsWith('DO_') || operatorId === 'ORDO' || operatorId === 'VVDO' || operatorId === 'D8DO' || operatorId === 'CLDO') {
     if (!digitsOnly.startsWith('1')) fullPhone = '1' + digitsOnly
+  } else if (operatorId.startsWith('BR_')) {
+    if (!digitsOnly.startsWith('55')) fullPhone = '55' + digitsOnly
   } else {
     if (!digitsOnly.startsWith('509')) fullPhone = '509' + digitsOnly
   }
+
+  // Para Brasil, usar o SkuCode exato do pacote (distributor_ref) se fornecido
+  // Para Haiti/Rep. Dom., operatorId já é o SkuCode
+  const effectiveSkuCode = skuCode || operatorId
 
   const correlationId = 'webhook-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9)
 
@@ -35,7 +42,7 @@ async function performDingConnectRecharge(
       'Accept': 'application/json'
     },
     body: JSON.stringify({
-      SkuCode: operatorId,
+      SkuCode: effectiveSkuCode,
       SendValue: amount,
       SendCurrencyIso: currency,
       AccountNumber: fullPhone,
@@ -214,14 +221,20 @@ Deno.serve(async (req) => {
     })
 
     const customerAmount: number = Number(transaction.amount)
-    const dingAmount = Math.round(customerAmount * 0.80 * 100) / 100
+    const isBrazil = (transaction.operator_id || '').startsWith('BR_')
+    // Brasil: usa receive_value já armazenado (pacote fixo do CSV)
+    // Haiti/Rep. Dom.: mantém 80% como antes
+    const dingAmount = isBrazil
+      ? Number(transaction.receive_value)
+      : Math.round(customerAmount * 0.80 * 100) / 100
     const dingSendCurrency = transaction.currency || 'BRL'
 
     const rechargeResult = await performDingConnectRecharge(
       transaction.phone_number,
       transaction.operator_id,
       dingAmount,
-      dingSendCurrency
+      dingSendCurrency,
+      isBrazil ? transaction.distributor_ref : undefined
     )
 
     console.log('DingConnect result:', rechargeResult)

@@ -3,7 +3,7 @@ import { RechargeData, Transaction } from '../types';
 import { mercadopagoService } from '../services/mercadopago';
 import { supabaseService } from '../services/supabase';
 import { pendingRechargeStorage } from '../services/pendingRecharge';
-import { getProfitMarginFee, getDingConnectAmount, HAITI_OPERATORS, DOMINICAN_OPERATORS, getCurrencyForCountry } from '../constants/countries';
+import { getProfitMarginFee, getDingConnectAmount, HAITI_OPERATORS, DOMINICAN_OPERATORS, BRAZIL_OPERATORS, getCurrencyForCountry } from '../constants/countries';
 
 export const useRecharge = () => {
   const [loading, setLoading] = useState(false);
@@ -26,14 +26,35 @@ export const useRecharge = () => {
       const profitFee = getProfitMarginFee(currency, customerPaidAmount);
       const totalPaymentAmount = customerPaidAmount;
 
+      // Haiti & Rep. Dominicana: mantém 80% (lógica original)
+      // Brasil: usa valores fixos dos pacotes do CSV (sendAmount)
+      const isBrazil = rechargeData.operator.startsWith('BR_');
       let dingconnectAmount: number;
-      if (currency === 'BRL') {
-        dingconnectAmount = getDingConnectAmount(currency, customerPaidAmount);
+      let receiveValue: number | undefined;
+      let receiveCurrencyIso: string | undefined;
+      let skuCode: string | undefined;
+
+      const operator = HAITI_OPERATORS.concat(DOMINICAN_OPERATORS, BRAZIL_OPERATORS).find(op => op.id === rechargeData.operator);
+
+      if (isBrazil) {
+        // Brasil: encontra o pacote exato no CSV (sendAmount = receiveAmount + comissão)
+        const product = operator?.products?.find(p => p.sendAmount === customerPaidAmount);
+        if (!product) {
+          throw new Error('Pacote de recarga inválido. Selecione um valor disponível.');
+        }
+        dingconnectAmount = product.receiveAmount;
+        receiveValue = product.receiveAmount;
+        receiveCurrencyIso = product.receiveCurrencyIso;
+        skuCode = product.skuCode;
       } else {
-        dingconnectAmount = customerPaidAmount;
+        // Haiti / Rep. Dominicana: mantém 80% como antes
+        if (currency === 'BRL') {
+          dingconnectAmount = getDingConnectAmount(currency, customerPaidAmount);
+        } else {
+          dingconnectAmount = customerPaidAmount;
+        }
       }
 
-      const operator = HAITI_OPERATORS.concat(DOMINICAN_OPERATORS).find(op => op.id === rechargeData.operator);
       const minBrlAmount = operator?.minAmountBRL || 10.00;
       const maxBrlAmount = operator?.maxAmountBRL || 750.00;
 
@@ -70,10 +91,13 @@ export const useRecharge = () => {
         amount: totalPaymentAmount,
         currency: currency,
         countryFrom: rechargeData.originCountry,
-        countryTo: rechargeData.operator.includes('DO') ? 'DO' : 'HT',
+        countryTo: isBrazil ? 'BR' : (rechargeData.operator.includes('DO') ? 'DO' : 'HT'),
         status: 'pending',
         paymentMethod: rechargeData.paymentMethod,
-        paymentId: paymentResult.paymentId
+        paymentId: paymentResult.paymentId,
+        receiveValue: receiveValue,
+        receiveCurrencyIso: receiveCurrencyIso,
+        distributorRef: skuCode
       });
 
       pendingRechargeStorage.save({

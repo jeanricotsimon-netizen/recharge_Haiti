@@ -19,13 +19,18 @@ export const AmountSelector: React.FC<AmountSelectorProps> = ({
   const { t } = useLanguage();
   const [customAmount, setCustomAmount] = React.useState('');
   const [showCustomInput, setShowCustomInput] = React.useState(false);
-  
+
   const selectedOperator = ALL_OPERATORS.find(op => op.id === operator);
-  
+  const isBrazilOperator = operator.startsWith('BR_');
+
+  // Brasil: usa apenas os pacotes fixos do CSV (sem custom amount)
+  // Haiti/Rep. Dom.: mantém a lógica original
+  const brazilProducts = isBrazilOperator ? (selectedOperator?.products || []) : [];
+
   // Filter denominations based on operator support and currency conversion
   const allDenominations = getRechargeValuesForCurrency(currency);
   const exchangeRate = EXCHANGE_RATES[currency as keyof typeof EXCHANGE_RATES] || 1;
-  
+
   // Filter amounts based on operator limits and valid USD conversions
   const denominations = allDenominations.filter(amount => {
     if (selectedOperator) {
@@ -48,7 +53,7 @@ export const AmountSelector: React.FC<AmountSelectorProps> = ({
     }
     return true;
   });
-  
+
   const currencySymbol = CURRENCY_SYMBOLS[currency as keyof typeof CURRENCY_SYMBOLS] || '$';
   // Não mostrar benefício ao cliente - valor total = valor selecionado
   const totalAmount = selectedAmount;
@@ -99,32 +104,65 @@ export const AmountSelector: React.FC<AmountSelectorProps> = ({
 
     return true;
   };
+
+  // Para Brasil, encontra o produto selecionado para mostrar valor recebido
+  const selectedBrazilProduct = isBrazilOperator
+    ? brazilProducts.find(p => p.sendAmount === selectedAmount)
+    : undefined;
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-800">{t.recharge.amountTitle || 'Valor da recarga'}</h3>
       <p className="text-sm text-gray-600">
         {t.recharge.currencyInfo || 'Valores em'} {currency}
       </p>
-      
-      {/* Toggle para mostrar campo personalizado */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-600">{t.recharge.predefinedValues || 'Valores pré-definidos'}:</span>
-        <button
-          type="button"
-          onClick={() => {
-            setShowCustomInput(!showCustomInput);
-            if (showCustomInput) {
-              setCustomAmount('');
-              onAmountChange(0);
-            }
-          }}
-          className="text-sm text-blue-600 hover:text-blue-800 underline"
-        >
-          {showCustomInput ? (t.recharge.usePredefined || 'Usar valores pré-definidos') : (t.recharge.useCustom || 'Inserir valor personalizado')}
-        </button>
-      </div>
 
-      {showCustomInput ? (
+      {/* Toggle para mostrar campo personalizado (apenas Haiti/Rep. Dom.) */}
+      {!isBrazilOperator && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600">{t.recharge.predefinedValues || 'Valores pré-definidos'}:</span>
+          <button
+            type="button"
+            onClick={() => {
+              setShowCustomInput(!showCustomInput);
+              if (showCustomInput) {
+                setCustomAmount('');
+                onAmountChange(0);
+              }
+            }}
+            className="text-sm text-blue-600 hover:text-blue-800 underline"
+          >
+            {showCustomInput ? (t.recharge.usePredefined || 'Usar valores pré-definidos') : (t.recharge.useCustom || 'Inserir valor personalizado')}
+          </button>
+        </div>
+      )}
+
+      {isBrazilOperator ? (
+        /* Grid de pacotes fixos do CSV para Brasil */
+        <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto">
+          {brazilProducts.map((product) => (
+            <button
+              key={product.skuCode}
+              onClick={() => {
+                onAmountChange(product.sendAmount);
+                setCustomAmount('');
+              }}
+              className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                selectedAmount === product.sendAmount
+                  ? 'border-orange-500 bg-orange-50 text-orange-700'
+                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <div className="text-center">
+                <div className="font-bold text-lg">{currencySymbol}{product.sendAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                <div className="text-xs text-green-600 mt-1">
+                  Recebe: {product.receiveCurrencyIso} {product.receiveAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : showCustomInput ? (
         /* Campo de valor personalizado */
         <div className="space-y-3">
           <div className="relative">
@@ -140,7 +178,7 @@ export const AmountSelector: React.FC<AmountSelectorProps> = ({
               min="0"
               step="0.01"
               className={`w-full pl-12 pr-4 py-3 rounded-lg border-2 focus:outline-none transition-colors ${
-                customAmount === '' 
+                customAmount === ''
                   ? 'border-gray-200 focus:border-blue-500'
                   : isCustomAmountValid()
                     ? 'border-green-500 focus:border-green-600 bg-green-50'
@@ -148,7 +186,7 @@ export const AmountSelector: React.FC<AmountSelectorProps> = ({
               }`}
             />
           </div>
-          
+
           {customAmount !== '' && !isCustomAmountValid() && (
             <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
               {selectedOperator ? (
@@ -163,7 +201,7 @@ export const AmountSelector: React.FC<AmountSelectorProps> = ({
               )}
             </div>
           )}
-          
+
           {customAmount !== '' && isCustomAmountValid() && (
             <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
               ✅ {t.recharge.validValue || 'Valor válido'}: {currencySymbol}{parseFloat(customAmount).toLocaleString()} {currency}
@@ -194,33 +232,41 @@ export const AmountSelector: React.FC<AmountSelectorProps> = ({
         ))}
       </div>
       )}
-      
+
       {selectedAmount > 0 && (
         <div className="mt-4 space-y-3">
           <div className="p-3 bg-blue-50 rounded-lg">
             <div className="space-y-1">
               <p className="text-sm text-blue-700">
-                <strong>{t.recharge.rechargeValue || 'Valor da recarga'}:</strong> {currencySymbol}{selectedAmount.toLocaleString()} {currency}
+                <strong>{t.recharge.rechargeValue || 'Valor da recarga'}:</strong> {currencySymbol}{selectedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} {currency}
               </p>
-              <p className="text-xs text-blue-600">
-                {t.recharge.limitsLabel || 'Limites'} BRL: R$ {selectedOperator.minAmountBRL} - R$ {selectedOperator.maxAmountBRL}
-              </p>
+              {isBrazilOperator && selectedBrazilProduct ? (
+                <p className="text-xs text-green-700">
+                  <strong>Crédito recebido:</strong> {selectedBrazilProduct.receiveCurrencyIso} {selectedBrazilProduct.receiveAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              ) : (
+                <p className="text-xs text-blue-600">
+                  {t.recharge.limitsLabel || 'Limites'} BRL: R$ {selectedOperator?.minAmountBRL} - R$ {selectedOperator?.maxAmountBRL}
+                </p>
+              )}
             </div>
           </div>
-          
+
           <div className="p-3 bg-green-50 rounded-lg border border-green-200">
             <div className="flex justify-between text-lg font-bold">
               <span className="text-green-800">{t.recharge.totalToPay || 'Total a pagar'}:</span>
-              <span className="text-green-800">{currencySymbol}{totalAmount.toLocaleString()}</span>
+              <span className="text-green-800">{currencySymbol}{totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
           </div>
         </div>
       )}
-      
+
       {selectedAmount === 0 && (
         <div className="mt-4 p-3 bg-gray-50 rounded-lg">
           <p className="text-sm text-blue-700">
-            {showCustomInput ? (t.recharge.enterCustom || 'Digite um valor personalizado') : (t.recharge.selectValuePrompt || 'Selecione um valor para continuar')}
+            {isBrazilOperator
+              ? (t.recharge.selectValuePrompt || 'Selecione um valor para continuar')
+              : (showCustomInput ? (t.recharge.enterCustom || 'Digite um valor personalizado') : (t.recharge.selectValuePrompt || 'Selecione um valor para continuar'))}
           </p>
         </div>
       )}

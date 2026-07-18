@@ -40,19 +40,28 @@ Deno.serve(async (req) => {
       if (!phoneNumber.startsWith('509')) {
         fullPhone = '509' + phoneNumber
       }
+    } else if (operatorId.startsWith('BR_')) {
+      if (!phoneNumber.startsWith('55')) {
+        fullPhone = '55' + phoneNumber
+      }
     }
+
+    // Para Brasil, usar o SkuCode exato do pacote (distributor_ref) se fornecido
+    // Para Haiti/Rep. Dom., operatorId já é o SkuCode
+    const skuCode = body.skuCode || operatorId
 
     const correlationId = 'recharge-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9)
 
     console.log('📤 Enviando recarga para DingConnect', {
       phoneNumber: fullPhone,
       operatorId,
+      skuCode,
       amount,
       currency
     })
 
     const rechargeData = {
-      SkuCode: operatorId,
+      SkuCode: skuCode,
       SendValue: amount,
       SendCurrencyIso: currency,
       AccountNumber: fullPhone,
